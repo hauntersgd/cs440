@@ -32,7 +32,13 @@ class NeuralNet(torch.nn.Module):
         """
         super().__init__()
         ################# Your Code Starts Here #################
-        self.input = nn.Linear(2883, 300)
+        batch_size = 100
+
+        self.unflat = nn.Unflatten(dim = 1, unflattened_size = (3, 31, 31))
+        self.conv = nn.Conv2d(in_channels = 3, out_channels = 5, kernel_size = 2)
+        self.pool = nn.AdaptiveAvgPool2d((10, 10))
+        self.flat = nn.Flatten()
+        self.input = nn.Linear(500, 300)
         self.activation = nn.LeakyReLU()
         self.hidden1 = nn.Linear(300, 100)
         self.output = nn.Linear(100, 5)
@@ -50,7 +56,11 @@ class NeuralNet(torch.nn.Module):
             y:      an (N, output_size) tensor of output from the network
         """
         ################# Your Code Starts Here #################
-        x_temp1 = self.input(x)
+        x_start1 = self.unflat(x)
+        x_start2 = self.conv(x_start1)
+        x_start3 = self.pool(x_start2)
+        x_start4 = self.flat(x_start3)
+        x_temp1 = self.input(x_start4)
         x_temp2 = self.activation(x_temp1)
         x_temp3 = self.hidden1(x_temp2)
         y = self.output(x_temp3)
